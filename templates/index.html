@@ -23,14 +23,14 @@
         <form method="get" action="/">
           <div class="fields">
             <label for="from">From</label>
-            <input type="text" id="from" name="from" list="stationList" value="$FROM_STATION" placeholder="e.g. Roppongi">
+            <input type="text" id="from" name="from" list="stationList" value="{{ frm }}" placeholder="e.g. Roppongi" autocomplete="off">
  
             <label for="to">To</label>
-            <input type="text" id="to" name="to" list="stationList" value="$TO_STATION" placeholder="e.g. Asakusa">
+            <input type="text" id="to" name="to" list="stationList" value="{{ to }}" placeholder="e.g. Asakusa" autocomplete="off">
           </div>
  
           <datalist id="stationList">
-            $STATION_OPTIONS
+            {% for station in stations %}<option value="{{ station }}">{% endfor %}
           </datalist>
  
           <button class="go" type="submit">Find fastest routes</button>
@@ -42,22 +42,66 @@
  
       <section class="block">
         <h2>Top routes</h2>
-        $MESSAGE
-        $ROUTE_CARDS
+        {% if error %}
+          <div class="empty-state">{{ error }}</div>
+        {% elif not routes %}
+          <div class="empty-state">Choose a start and end station to see routes.</div>
+        {% endif %}
+        {% for r in routes %}
+          <a href="/?from={{ frm | urlencode }}&to={{ to | urlencode }}&route={{ loop.index0 }}" style="text-decoration: none; color: inherit; display: block;">
+            <div class="route-card{% if loop.index0 == pick %} selected{% endif %}">
+              <div class="rank">
+                <span>Route {{ loop.index }}</span>
+                {% if loop.first %}<b>Shortest</b>{% endif %}
+              </div>
+              <div class="headline">
+                <span class="time">{{ r.minutes }} min</span>
+                <span class="dist">{{ "%.1f"|format(r.km) }} km · {{ r.transfers }} transfer{{ "" if r.transfers == 1 else "s" }}</span>
+              </div>
+              <div class="lines">
+                {% for leg in r.legs %}{% if leg.line != "Transfer" %}<span class="chip" style="background: {{ leg.color }};">{{ leg.line }}</span>{% endif %}{% endfor %}
+              </div>
+              <div class="fare-row">
+                <span class="lbl">{{ labels["adult_ic"] }}</span>
+                <span>¥{{ r.fares["adult_ic"] }}</span>
+              </div>
+              <div class="transfer-note">{{ r.mode }}</div>
+            </div>
+          </a>
+        {% endfor %}
       </section>
  
     </div>
  
     <div style="display: flex; flex-direction: column; min-height: 0;">
       <div class="map-wrap" style="flex: 1;">
-        <div id="map">$MAP</div>
+        <div id="map">{{ map | safe }}</div>
       </div>
  
       <div class="detail-panel">
-        $DETAILS
+        {% if routes %}
+          {% set r = routes[pick] %}
+          <h3>{{ r.stations[0] }} → {{ r.stations[-1] }}</h3>
+          <div class="ja">{{ r.mode }}</div>
+          <ul class="step-list">
+            {% for leg in r.legs %}
+              <li>
+                <span class="dot" style="background: {{ leg.color }};"></span>
+                <span>{{ leg.from }} → {{ leg.to }}</span>
+                <span class="via">{{ leg.line }}{% if leg.line != "Transfer" %} · {{ leg.stops }} stop{{ "" if leg.stops == 1 else "s" }} · {{ "%.1f"|format(leg.km) }} km{% endif %}</span>
+              </li>
+            {% endfor %}
+          </ul>
+          <table>
+            {% for key, label in labels.items() %}
+              <tr><td class="k">{{ label }}</td><td>¥{{ r.fares[key] }}</td></tr>
+            {% endfor %}
+          </table>
+        {% else %}
+          <div class="empty-state">Route details will appear here.</div>
+        {% endif %}
       </div>
     </div>
   </main>
 </body>
 </html>
- 
