@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Metro Project</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+ 
+<body>
+  <header>
+    <div class="brand">
+      <h1>Metro Project</h1>
+    </div>
+  </header>
+ 
+  <main>
+    <div class="side">
+ 
+      <section class="block">
+        <h2>Journey</h2>
+        <form method="get" action="/">
+          <div class="fields">
+            <label for="from">From</label>
+            <input type="text" id="from" name="from" list="stationList" value="$FROM_STATION" placeholder="e.g. Roppongi">
+ 
+            <label for="to">To</label>
+            <input type="text" id="to" name="to" list="stationList" value="$TO_STATION" placeholder="e.g. Asakusa">
+          </div>
+ 
+          <datalist id="stationList">
+            $STATION_OPTIONS
+          </datalist>
+ 
+          <button class="go" type="submit">Find fastest routes</button>
+        </form>
+        <div class="hint">
+          Fare follows the shortest-route-in-km rule. Journeys that transfer at Kuramae, Higashi-Nihombashi or Bakuro-yokoyama are split-fared; journeys touching the Sakura Tram use its flat combination fare.
+        </div>
+      </section>
+ 
+      <section class="block">
+        <h2>Top routes</h2>
+        $MESSAGE
+        $ROUTE_CARDS
+      </section>
+ 
+    </div>
+ 
+    <div style="display: flex; flex-direction: column; min-height: 0;">
+      <div class="map-wrap" style="flex: 1;">
+        <div id="map">$MAP</div>
+      </div>
+ 
+      <div class="detail-panel">
+        $DETAILS
+      </div>
+    </div>
+  </main>
+</body>
+</html>
+ 
